@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model INSTRUCTORS {
+  ID        String      @id @db.VarChar(6)
+  FNAME     String      @db.VarChar(20)
+  LNAME     String?     @db.VarChar(20)
+  PASS      String      @db.VarChar
+  SUB1      String      @db.VarChar(6)
+  SUB2      String?     @db.VarChar(6)
+  EMAIL     String      @unique(map: "EMAIL") @db.VarChar
+  QUESTIONS QUESTIONS[]
+}
+
+model QUESTIONS {
+  CODE        String        @db.VarChar(6)
+  MODULE      Int
+  QNO         Int
+  TEXT        String        @db.VarChar
+  FIGURE      String?       @db.VarChar
+  TYPE        Int
+  AUTHOR      String?       @db.VarChar(6)
+  DATE        DateTime      @default(now()) @db.Timestamptz(6)
+  IMPORTANCE  Int           @default(2)
+  TOPICS      String        @unique @db.VarChar
+  INSTRUCTORS INSTRUCTORS?  @relation(fields: [AUTHOR], references: [ID], onUpdate: NoAction)
+  QUES_TOPICS QUES_TOPICS[]
+
+  @@id([CODE, MODULE, QNO])
+}
+
+model QUES_TOPICS {
+  ID        String    @db.VarChar
+  CODE      String?   @db.VarChar(6)
+  MODULE    Int
+  QNO       Int
+  TOPIC     String    @db.VarChar(150)
+  A         Int       @id @default(autoincrement())
+  QUESTIONS QUESTIONS @relation(fields: [ID], references: [TOPICS], onUpdate: NoAction)
+}
+
+model TOPICS {
+  SUB        String @db.VarChar(6)
+  ID         Int    @default(autoincrement())
+  MODULE     Int
+  TOPIC      String @db.VarChar(150)
+  IMPORTANCE Int    @default(2)
+
+  @@id([SUB, ID, MODULE])
+}
